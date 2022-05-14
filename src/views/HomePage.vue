@@ -2,27 +2,49 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-title>Blank</ion-title>
+        <ion-title>New Tab</ion-title>
       </ion-toolbar>
     </ion-header>
     
     <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Blank</ion-title>
-        </ion-toolbar>
-      </ion-header>
-    
       <div id="container">
-        <strong>Ready to create an app?</strong>
-        <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+        <ion-grid>
+          <ion-row>
+            <ion-col size-lg="10" offset-lg="1"><!-- -->
+              <ion-row>
+                <ion-col size-xl="2" size-lg="3" size-md="4" size-xs="6" v-for="card in favCards" :key="card.name">
+                  <div class="card-container">
+                    <ion-card @click="gotoFav(card.url)">
+                      <img :src="card.imgUrl" :alt="card.altText">
+                      <ion-card-content>
+                        {{ card.name }}
+                      </ion-card-content>
+                    </ion-card>
+                  </div>
+                </ion-col>
+              </ion-row>
+            </ion-col><!-- -->
+            
+            
+          </ion-row>
+        </ion-grid>
       </div>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+import { 
+  IonContent, 
+  IonHeader, 
+  IonPage, 
+  IonTitle, 
+  IonToolbar,
+  IonCard,
+  IonCardContent,
+  IonGrid,
+  IonRow,
+  IonCol } from '@ionic/vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -32,20 +54,88 @@ export default defineComponent({
     IonHeader,
     IonPage,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    IonCard,
+    IonCardContent,
+    IonGrid,
+    IonRow,
+    IonCol
+  },
+  data() {
+    return {
+      favCards: [
+        {
+          name: "Vue", 
+          url: "https://www.vuejs.org/",
+          imgUrl: "assets/img/vue.svg",
+          altText: "Vue J S",
+        },
+        {
+          name: "Vue", 
+          url: "https://www.vuejs.org/",
+          imgUrl: "assets/img/vue.svg",
+          altText: "Vue J S",
+        },
+        {
+          name: "Vue", 
+          url: "https://www.vuejs.org/",
+          imgUrl: "assets/img/vue.svg",
+          altText: "Vue J S",
+        },
+        {
+          name: "Vue", 
+          url: "https://www.vuejs.org/",
+          imgUrl: "assets/img/vue.svg",
+          altText: "Vue J S",
+        },
+        {
+          name: "Vue", 
+          url: "https://www.vuejs.org/",
+          imgUrl: "assets/img/vue.svg",
+          altText: "Vue J S",
+        },
+        {
+          name: "Vue", 
+          url: "https://www.vuejs.org/",
+          imgUrl: "assets/img/vue.svg",
+          altText: "Vue J S",
+        },
+        {
+          name: "Vue", 
+          url: "https://www.vuejs.org/",
+          imgUrl: "assets/img/vue.svg",
+          altText: "Vue J S",
+        },
+        {
+          name: "Vue", 
+          url: "https://www.vuejs.org/",
+          imgUrl: "assets/img/vue.svg",
+          altText: "Vue J S",
+        },
+        {
+          name: "Firebase",
+          url: "https://firebase.google.com/",
+          imgUrl: "assets/img/firebase.svg",
+          altText: "Firebase"
+        }
+      ]
+    }
+  },
+  methods: {
+    gotoFav(url: string) {
+      // console.log(url)
+      window.open(url, '_blank');
+    }
   }
 });
 </script>
 
 <style scoped>
 #container {
+  color: var(--ion-color-secondary);
+  /* width: 80%; */
+  margin: auto;
   text-align: center;
-  
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 #container strong {
@@ -64,5 +154,13 @@ export default defineComponent({
 
 #container a {
   text-decoration: none;
+}
+
+ion-card img {
+  height: 200px;
+}
+
+.card-container {
+  /* max-width: 200px */
 }
 </style>
