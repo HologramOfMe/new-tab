@@ -161,6 +161,6 @@ ion-card img {
 }
 
 .card-container {
-  /* max-width: 200px */
+  background-color: none;
 }
 </style>

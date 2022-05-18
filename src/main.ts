@@ -30,3 +30,5 @@ const app = createApp(App)
 router.isReady().then(() => {
   app.mount('#app');
 });
+
+// TODO: Firebase Implementation https://www.koderhq.com/tutorial/vue/firebase-firestore/
