@@ -10,7 +10,7 @@
       <div id="container">
         <ion-grid>
           <ion-row>
-            <ion-col size-lg="10" offset-lg="1"><!-- -->
+            <ion-col size-lg="10" offset-lg="1"><!-- Contains all nested Columns -->
               <ion-row>
                 <ion-col size-xl="2" size-lg="3" size-md="4" size-xs="6" v-for="card in favCards" :key="card.name">
                   <div class="card-container">
@@ -23,11 +23,10 @@
                   </div>
                 </ion-col>
               </ion-row>
-            </ion-col><!-- -->
-            
-            
+            </ion-col>
           </ion-row>
         </ion-grid>
+        <ion-button @click="createCard">Add Dummy</ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -44,8 +43,15 @@ import {
   IonCardContent,
   IonGrid,
   IonRow,
-  IonCol } from '@ionic/vue';
+  IonCol,
+  IonButton } from '@ionic/vue';
 import { defineComponent } from 'vue';
+
+// firestore methods
+import { collection, addDoc } from "firebase/firestore"
+// the firestore instance
+import db from '../firebase/init'
+
 
 export default defineComponent({
   name: 'HomePage',
@@ -59,7 +65,8 @@ export default defineComponent({
     IonCardContent,
     IonGrid,
     IonRow,
-    IonCol
+    IonCol,
+    IonButton
   },
   data() {
     return {
@@ -125,7 +132,28 @@ export default defineComponent({
     gotoFav(url: string) {
       // console.log(url)
       window.open(url, '_blank');
+    },
+    async createCard() {
+      // Reference to the firestore cards collection
+      const collectionRef = collection(db, 'cards');
+
+      // Dummy data to send to db
+      const cardData = {
+        name: "Vue", 
+        url: "https://www.vuejs.org/",
+        imgUrl: "assets/img/vue.svg",
+        altText: "Vue J S",
+      };
+
+      // create document and return reference to it
+      const docRef = await addDoc(collectionRef, cardData);
+
+      // access auto-generated ID with '.id'
+      console.log('Document was created with ID:', docRef.id)
     }
+  },
+  created() {
+    this.createCard
   }
 });
 </script>
