@@ -23,10 +23,42 @@
                   </div>
                 </ion-col>
               </ion-row>
+              <ion-row>
+                <ion-col size-xl="4" size-md="6" size-xs="12">
+                  <form>
+                    <ion-list>
+                      <ion-item>
+                        <label for="new-card-name">Name: </label>
+                        <input
+                          type="text"
+                          id="new-card-name"
+                          v-model="newCardName">
+                      </ion-item>
+                      <ion-item>
+                        <label for="new-card-url">Site Url: </label>
+                        <input
+                          type="text"
+                          id="new-card-url"
+                          v-model="newCardUrl">
+                      </ion-item>
+                      <ion-item>
+                        <label for="new-card-filename">Image File: </label>
+                        <input
+                          type="text"
+                          id="new-card-filename"
+                          v-model="newCardFileName">
+                      </ion-item>
+                    </ion-list>
+                    <ion-button @click="createCard">Add Dummy</ion-button>
+                  </form>
+                </ion-col>
+              </ion-row>
             </ion-col>
           </ion-row>
+          
         </ion-grid>
-        <ion-button @click="createCard">Add Dummy</ion-button>
+        
+        
       </div>
     </ion-content>
   </ion-page>
@@ -44,7 +76,10 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonButton } from '@ionic/vue';
+  IonButton,
+  IonList,
+  IonItem,
+  toastController } from '@ionic/vue';
 import { defineComponent } from 'vue';
 
 // firestore methods
@@ -66,7 +101,9 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonButton
+    IonButton,
+    IonList,
+    IonItem,
   },
   data() {
     return {
@@ -125,7 +162,10 @@ export default defineComponent({
           imgUrl: "assets/img/firebase.svg",
           altText: "Firebase"
         }
-      ]
+      ],
+      newCardName: "",
+      newCardUrl: "",
+      newCardFileName: "",
     }
   },
   methods: {
@@ -133,32 +173,54 @@ export default defineComponent({
       // console.log(url)
       window.open(url, '_blank');
     },
+    async openToast(message: string) {
+      const toast = await toastController
+        .create({
+          message: message,
+          duration: 3000
+        })
+      return toast.present();
+    },
     async createCard() {
       // Reference to the firestore cards collection
       const collectionRef = collection(db, 'cards');
 
       // Dummy data to send to db
       const cardData = {
-        name: "Vue", 
-        url: "https://www.vuejs.org/",
-        imgUrl: "assets/img/vue.svg",
-        altText: "Vue J S",
+        name: this.newCardName, 
+        url: this.newCardUrl,
+        imgUrl: `assets/img/${this.newCardFileName}`,
+        altText: `${this.newCardName.toLowerCase()} logo`,
       };
 
       // create document and return reference to it
       const docRef = await addDoc(collectionRef, cardData);
 
+      // Clear the form ready for new data
+      this.newCardName = "";
+      this.newCardUrl = "";
+      this.newCardFileName = "";
+
       // access auto-generated ID with '.id'
       console.log('Document was created with ID:', docRef.id)
+
+      // Display feedback for the user
+      this.openToast('New card created.');
     }
   },
-  created() {
-    this.createCard
-  }
 });
 </script>
 
 <style scoped>
+li {
+  list-style: none;
+  margin-bottom: 20px;
+}
+
+input {
+  margin-left: 10px;
+}
+
 #container {
   color: var(--ion-color-secondary);
   /* width: 80%; */
