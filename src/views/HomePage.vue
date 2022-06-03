@@ -11,6 +11,8 @@
         <ion-grid>
           <ion-row>
             <ion-col size-lg="10" offset-lg="1"><!-- Contains all nested Columns -->
+
+              <!-- Favorite Site Cards -->
               <ion-row>
                 <ion-col size-xl="2" size-lg="3" size-md="4" size-xs="6" v-for="card in favCards" :key="card.name">
                   <div class="card-container">
@@ -23,42 +25,43 @@
                   </div>
                 </ion-col>
               </ion-row>
+
+              <!-- New Card Form -->
               <ion-row>
                 <ion-col size-xl="4" size-md="6" size-xs="12">
                   <form>
                     <ion-list>
                       <ion-item>
-                        <label for="new-card-name">Name: </label>
-                        <input
+                        <ion-label for="new-card-name">Name: </ion-label>
+                        <ion-input
                           type="text"
                           id="new-card-name"
-                          v-model="newCardName">
+                          v-model="newCardName"></ion-input>
                       </ion-item>
                       <ion-item>
-                        <label for="new-card-url">Site Url: </label>
-                        <input
+                        <ion-label for="new-card-url">Site Url: </ion-label>
+                        <ion-input
                           type="text"
                           id="new-card-url"
-                          v-model="newCardUrl">
+                          v-model="newCardUrl"></ion-input>
                       </ion-item>
                       <ion-item>
-                        <label for="new-card-filename">Image File: </label>
-                        <input
+                        <ion-label for="new-card-filename">Image File: </ion-label>
+                        <ion-input
                           type="text"
                           id="new-card-filename"
-                          v-model="newCardFileName">
+                          v-model="newCardFileName"></ion-input>
                       </ion-item>
                     </ion-list>
                     <ion-button @click="createCard">Add Dummy</ion-button>
                   </form>
                 </ion-col>
               </ion-row>
+
             </ion-col>
           </ion-row>
-          
         </ion-grid>
-        
-        
+
       </div>
     </ion-content>
   </ion-page>
@@ -77,8 +80,10 @@ import {
   IonRow,
   IonCol,
   IonButton,
+  IonInput,
   IonList,
   IonItem,
+  IonLabel,
   toastController } from '@ionic/vue';
 import { defineComponent } from 'vue';
 
@@ -102,8 +107,10 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonButton,
+    IonInput,
     IonList,
     IonItem,
+    IonLabel,
   },
   data() {
     return {
@@ -219,6 +226,10 @@ li {
 
 input {
   margin-left: 10px;
+}
+
+form {
+  margin: 10px;
 }
 
 #container {
