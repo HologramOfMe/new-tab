@@ -48,7 +48,7 @@
                       <ion-item>
                         <ion-label for="new-card-filename">Image File: </ion-label>
                         <ion-input
-                          type="text"
+                          type="file"
                           id="new-card-filename"
                           v-model="newCardFileName"></ion-input>
                       </ion-item>
@@ -196,7 +196,7 @@ export default defineComponent({
       const cardData = {
         name: this.newCardName, 
         url: this.newCardUrl,
-        imgUrl: `assets/img/${this.newCardFileName}`,
+        imgUrl: `assets/img/${this.trimFilename(this.newCardFileName)}`,
         altText: `${this.newCardName.toLowerCase()} logo`,
       };
 
@@ -213,23 +213,24 @@ export default defineComponent({
 
       // Display feedback for the user
       this.openToast('New card created.');
-    }
+    },
+    trimFilename(filename: any): string {
+      // TODO: Collect the file and upload to google cloudstore
+      console.log(filename);
+      return 'bogus.jpg';
+    },
   },
 });
 </script>
 
 <style scoped>
-li {
-  list-style: none;
-  margin-bottom: 20px;
-}
-
-input {
-  margin-left: 10px;
-}
 
 form {
   margin: 10px;
+}
+
+ion-button {
+  margin-top: 20px;
 }
 
 #container {
