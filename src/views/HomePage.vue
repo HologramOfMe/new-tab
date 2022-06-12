@@ -90,9 +90,9 @@ import { defineComponent } from 'vue';
 // firestore methods
 import { collection, addDoc } from "firebase/firestore";
 // the firestore instance
-import { db } from '../firebase/init';
+import { db, storage } from '../firebase/init';
 // the cloud storage for storing image files
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes } from "firebase/storage";
 
 
 
@@ -199,17 +199,13 @@ export default defineComponent({
       console.log(this.imgData);
     },
     async createCard() {
-      // Store the image in Google Cloud Storage
-      const storage = getStorage(); // TODO: maybe this should be referencing firebase/init.js storage...?
-      // const storageRef = ref(storage);
-
-      // File types to accept
-      const fileTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/svg']; // TODO: How to use this to prevent incorrect file types
+      // File types to accept // TODO: How to use this to prevent incorrect file types
+      // const fileTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/svg'];
 
       // 'file' comes from the Blob or File API
       if(this.imgData) {
-        const imageRef = await ref(storage, `${this.newCardFileName}`);
-        uploadBytes(imageRef, this.imgData).then((snapshot) => {
+        const storageRef = await ref(storage, `${this.newCardFileName}`);
+        uploadBytes(storageRef, this.imgData).then((snapshot) => {
         console.log(snapshot);
         });
       }else{
@@ -219,7 +215,7 @@ export default defineComponent({
       // Reference to the firestore cards collection
       const collectionRef = collection(db, 'cards');
 
-      // Dummy data to send to db
+      // Data to send to db
       const cardData = {
         name: this.newCardName, 
         url: this.newCardUrl,
@@ -227,19 +223,19 @@ export default defineComponent({
         altText: `${this.newCardName.toLowerCase()} logo`,
       };
 
-      // // TODO: create document and return reference to it
-      // const docRef = await addDoc(collectionRef, cardData);
+      // TODO: create document and return reference to it
+      const docRef = await addDoc(collectionRef, cardData);
 
-      // // Clear the form ready for new data
-      // this.newCardName = "";
-      // this.newCardUrl = "";
-      // this.newCardFileName = "";
+      // Clear the form ready for new data
+      this.newCardName = "";
+      this.newCardUrl = "";
+      this.newCardFileName = "";
 
-      // // access auto-generated ID with '.id'
-      // console.log('Document was created with ID:', docRef.id)
+      // access auto-generated ID with '.id'
+      console.log('Document was created with ID:', docRef.id);
 
-      // // Display feedback for the user
-      // this.openToast('New card created.');
+      // Display feedback for the user
+      this.openToast('New card created.');
     },
   },
 });
