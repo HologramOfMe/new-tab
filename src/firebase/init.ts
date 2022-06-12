@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+
 
 
 
@@ -15,10 +17,16 @@ const firebaseConfig = {
   
   // Initialize Firebase
 //   const firebase = 
-  initializeApp(firebaseConfig);
+  const firebaseApp = initializeApp(firebaseConfig);
 
   // init firestore service
   const db = getFirestore();
 
+  // Get a reference to the storage service, which is used to create references in your storage bucket
+  const storage = getStorage(firebaseApp);
+
   
-  export default db;
+  export {
+    db,
+    storage
+  };

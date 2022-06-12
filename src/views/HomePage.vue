@@ -50,10 +50,10 @@
                         <ion-input
                           type="file"
                           id="new-card-filename"
-                          v-model="newCardFileName"></ion-input>
+                          @change="getImageFile"></ion-input>
                       </ion-item>
                     </ion-list>
-                    <ion-button @click="createCard">Add Dummy</ion-button>
+                    <ion-button @click="createCard">Add Card</ion-button>
                   </form>
                 </ion-col>
               </ion-row>
@@ -88,9 +88,12 @@ import {
 import { defineComponent } from 'vue';
 
 // firestore methods
-import { collection, addDoc } from "firebase/firestore"
+import { collection, addDoc } from "firebase/firestore";
 // the firestore instance
-import db from '../firebase/init'
+import { db } from '../firebase/init';
+// the cloud storage for storing image files
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+
 
 
 export default defineComponent({
@@ -173,6 +176,7 @@ export default defineComponent({
       newCardName: "",
       newCardUrl: "",
       newCardFileName: "",
+      imgData: null,
     }
   },
   methods: {
@@ -188,7 +192,30 @@ export default defineComponent({
         })
       return toast.present();
     },
+    getImageFile(event: any) {
+      const imgData = event.target.files[0];
+      this.newCardFileName = `${imgData.name}`;
+      this.imgData = imgData;
+      console.log(this.imgData);
+    },
     async createCard() {
+      // Store the image in Google Cloud Storage
+      const storage = getStorage(); // TODO: maybe this should be referencing firebase/init.js storage...?
+      // const storageRef = ref(storage);
+
+      // File types to accept
+      const fileTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/svg']; // TODO: How to use this to prevent incorrect file types
+
+      // 'file' comes from the Blob or File API
+      if(this.imgData) {
+        const imageRef = await ref(storage, `${this.newCardFileName}`);
+        uploadBytes(imageRef, this.imgData).then((snapshot) => {
+        console.log(snapshot);
+        });
+      }else{
+        this.openToast('Please select an image file.');
+      }
+
       // Reference to the firestore cards collection
       const collectionRef = collection(db, 'cards');
 
@@ -196,28 +223,23 @@ export default defineComponent({
       const cardData = {
         name: this.newCardName, 
         url: this.newCardUrl,
-        imgUrl: `assets/img/${this.trimFilename(this.newCardFileName)}`,
+        imgUrl: this.newCardFileName,
         altText: `${this.newCardName.toLowerCase()} logo`,
       };
 
-      // create document and return reference to it
-      const docRef = await addDoc(collectionRef, cardData);
+      // // TODO: create document and return reference to it
+      // const docRef = await addDoc(collectionRef, cardData);
 
-      // Clear the form ready for new data
-      this.newCardName = "";
-      this.newCardUrl = "";
-      this.newCardFileName = "";
+      // // Clear the form ready for new data
+      // this.newCardName = "";
+      // this.newCardUrl = "";
+      // this.newCardFileName = "";
 
-      // access auto-generated ID with '.id'
-      console.log('Document was created with ID:', docRef.id)
+      // // access auto-generated ID with '.id'
+      // console.log('Document was created with ID:', docRef.id)
 
-      // Display feedback for the user
-      this.openToast('New card created.');
-    },
-    trimFilename(filename: any): string {
-      // TODO: Collect the file and upload to google cloudstore
-      console.log(filename);
-      return 'bogus.jpg';
+      // // Display feedback for the user
+      // this.openToast('New card created.');
     },
   },
 });
