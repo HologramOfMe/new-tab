@@ -223,7 +223,7 @@ export default defineComponent({
         altText: `${this.newCardName.toLowerCase()} logo`,
       };
 
-      // TODO: create document and return reference to it
+      // create document and return reference to it
       const docRef = await addDoc(collectionRef, cardData);
 
       // Clear the form ready for new data
