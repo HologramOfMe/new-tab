@@ -207,6 +207,7 @@ export default defineComponent({
             };
 
             // Push the data to this.favCards array
+            // TODO: fix problem where card can't be pushed to this.favCards when it's empty
             this.favCards.push(card);
           });
       });
