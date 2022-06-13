@@ -88,13 +88,13 @@ import {
 import { defineComponent } from 'vue';
 
 // firestore methods
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 // the firestore instance
 import { db, storage } from '../firebase/init';
 // the cloud storage for storing image files
-import { ref, uploadBytes } from "firebase/storage";
-
-
+import { ref, uploadBytes, getDownloadURL  } from "firebase/storage";
+// Interface for working with Cards
+import { FavCard } from "../models/favCard";
 
 export default defineComponent({
   name: 'HomePage',
@@ -115,6 +115,10 @@ export default defineComponent({
     IonItem,
     IonLabel,
   },
+  mounted() {
+    // Fetch the cards data from the database
+    this.getCards();
+  },
   data() {
     return {
       favCards: [
@@ -124,54 +128,6 @@ export default defineComponent({
           imgUrl: "assets/img/vue.svg",
           altText: "Vue J S",
         },
-        {
-          name: "Vue", 
-          url: "https://www.vuejs.org/",
-          imgUrl: "assets/img/vue.svg",
-          altText: "Vue J S",
-        },
-        {
-          name: "Vue", 
-          url: "https://www.vuejs.org/",
-          imgUrl: "assets/img/vue.svg",
-          altText: "Vue J S",
-        },
-        {
-          name: "Vue", 
-          url: "https://www.vuejs.org/",
-          imgUrl: "assets/img/vue.svg",
-          altText: "Vue J S",
-        },
-        {
-          name: "Vue", 
-          url: "https://www.vuejs.org/",
-          imgUrl: "assets/img/vue.svg",
-          altText: "Vue J S",
-        },
-        {
-          name: "Vue", 
-          url: "https://www.vuejs.org/",
-          imgUrl: "assets/img/vue.svg",
-          altText: "Vue J S",
-        },
-        {
-          name: "Vue", 
-          url: "https://www.vuejs.org/",
-          imgUrl: "assets/img/vue.svg",
-          altText: "Vue J S",
-        },
-        {
-          name: "Vue", 
-          url: "https://www.vuejs.org/",
-          imgUrl: "assets/img/vue.svg",
-          altText: "Vue J S",
-        },
-        {
-          name: "Firebase",
-          url: "https://firebase.google.com/",
-          imgUrl: "assets/img/firebase.svg",
-          altText: "Firebase"
-        }
       ],
       newCardName: "",
       newCardUrl: "",
@@ -206,7 +162,7 @@ export default defineComponent({
       if(this.imgData) {
         const storageRef = await ref(storage, `${this.newCardFileName}`);
         uploadBytes(storageRef, this.imgData).then((snapshot) => {
-        console.log(snapshot);
+        console.log(`Image Storage md5 Hash: ${snapshot.metadata.md5Hash}`);
         });
       }else{
         this.openToast('Please select an image file.');
@@ -224,18 +180,36 @@ export default defineComponent({
       };
 
       // create document and return reference to it
-      const docRef = await addDoc(collectionRef, cardData);
+      await addDoc(collectionRef, cardData);
 
       // Clear the form ready for new data
       this.newCardName = "";
       this.newCardUrl = "";
       this.newCardFileName = "";
 
-      // access auto-generated ID with '.id'
-      console.log('Document was created with ID:', docRef.id);
-
       // Display feedback for the user
       this.openToast('New card created.');
+    },
+    async getCards() {
+      const querySnapshot = await getDocs(collection(db, "cards"));
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        // console.log(doc.id, " => ", doc.data().name);
+
+        getDownloadURL(ref(storage, doc.data().imgUrl))
+          .then((storageUrl) => {
+            // create a FavCard object, assign the storage url to imgUrl
+            const card: FavCard = {
+              url: doc.data().url,
+              imgUrl: storageUrl,
+              name: doc.data().name,
+              altText: doc.data().altText,
+            };
+
+            // Push the data to this.favCards array
+            this.favCards.push(card);
+          });
+      });
     },
   },
 });
