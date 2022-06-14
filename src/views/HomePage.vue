@@ -138,7 +138,7 @@ export default defineComponent({
   methods: {
     gotoFav(url: string) {
       // console.log(url)
-      window.open(url, '_blank');
+      window.open(url, '_self');
     },
     async openToast(message: string) {
       const toast = await toastController
