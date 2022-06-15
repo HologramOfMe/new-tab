@@ -3,6 +3,14 @@
     <ion-header :translucent="true">
       <ion-toolbar>
         <ion-title>New Tab</ion-title>
+        <ion-icon
+          class="header-icon"
+          src="assets/icon/finger-print.svg"
+          slot="end"
+          size="large"
+          @click="authenticate">
+        </ion-icon>
+        <!-- <ion-icon name="finger-print"></ion-icon> -->
       </ion-toolbar>
     </ion-header>
     
@@ -10,7 +18,7 @@
       <div id="container">
         <ion-grid>
           <ion-row>
-            <ion-col size-lg="10" offset-lg="1"><!-- Contains all nested Columns -->
+            <ion-col v-if="isAuthenticated" size-lg="10" offset-lg="1"><!-- Contains all nested Columns -->
 
               <!-- Favorite Site Cards -->
               <ion-row>
@@ -84,15 +92,18 @@ import {
   IonList,
   IonItem,
   IonLabel,
+  IonIcon,
   toastController } from '@ionic/vue';
 import { defineComponent } from 'vue';
 
 // firestore methods
 import { collection, addDoc, getDocs } from "firebase/firestore";
-// the firestore instance
-import { db, storage } from '../firebase/init';
+// the firebase service instances
+import { db, storage, auth } from '../firebase/init';
 // the cloud storage for storing image files
 import { ref, uploadBytes, getDownloadURL  } from "firebase/storage";
+// firebase authentication modules
+import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 // Interface for working with Cards
 import { FavCard } from "../models/favCard";
 
@@ -114,10 +125,22 @@ export default defineComponent({
     IonList,
     IonItem,
     IonLabel,
+    IonIcon,
   },
   mounted() {
-    // Fetch the cards data from the database
-    this.getCards();
+    onAuthStateChanged(auth, (user) => {
+      if(user) {
+        this.isAuthenticated = true;
+        console.log(`User is authenticated ${user.email}`)
+
+        // Fetch the cards data from the database
+      this.getCards();
+      }else{
+        this.isAuthenticated = false;
+        console.log('No user is authenticated')
+      }
+    });
+    
   },
   data() {
     return {
@@ -129,6 +152,7 @@ export default defineComponent({
           altText: "Vue J S",
         },
       ],
+      isAuthenticated: false,
       newCardName: "",
       newCardUrl: "",
       newCardFileName: "",
@@ -159,7 +183,7 @@ export default defineComponent({
       // const fileTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/svg'];
 
       // 'file' comes from the Blob or File API
-      if(this.imgData) {
+      if(this.isAuthenticated && this.imgData) {
         const storageRef = await ref(storage, `${this.newCardFileName}`);
         uploadBytes(storageRef, this.imgData).then((snapshot) => {
         console.log(`Image Storage md5 Hash: ${snapshot.metadata.md5Hash}`);
@@ -194,8 +218,8 @@ export default defineComponent({
       const querySnapshot = await getDocs(collection(db, "cards"));
       querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
-        // console.log(doc.id, " => ", doc.data().name);
 
+        // fetch the download url of the image for each card
         getDownloadURL(ref(storage, doc.data().imgUrl))
           .then((storageUrl) => {
             // create a FavCard object, assign the storage url to imgUrl
@@ -212,6 +236,38 @@ export default defineComponent({
           });
       });
     },
+    authenticate() {
+      console.log('Authenticading...could take a while...');
+
+      // TODO: Figure out how to prevent anyone other than me signing in
+      // Must be some sort of Authentication config business...?
+
+      // Use google as authentication provider
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          // const credential = GoogleAuthProvider.credentialFromResult(result);
+          // const token = credential?.accessToken
+          const user = result.user;
+          console.log(user.email);
+
+          // Update auth state to make content visible
+          this.isAuthenticated = true;
+        })
+        .catch((error) => {
+          // There has been an error. Make sure no data is presented
+          this.isAuthenticated = false;
+          // Handle Errors here.
+          const errorCode = error.code;
+          console.log(errorCode);
+          const errorMessage = error.message;
+          console.log(errorMessage);
+          // The email of the user's account used.
+          // const email = error.customData.email;
+          // The AuthCredential type that was used.
+          // const credential = GoogleAuthProvider.credentialFromError(error);
+        });
+    }
   },
 });
 </script>
@@ -257,5 +313,9 @@ ion-card img {
 
 .card-container {
   background-color: none;
+}
+
+.header-icon {
+  margin-right: 20px;
 }
 </style>
