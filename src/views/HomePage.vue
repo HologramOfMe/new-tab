@@ -262,6 +262,7 @@ export default defineComponent({
           console.log(errorCode);
           const errorMessage = error.message;
           console.log(errorMessage);
+          // TODO: should do more
           // The email of the user's account used.
           // const email = error.customData.email;
           // The AuthCredential type that was used.
